@@ -1,11 +1,11 @@
 %!TEX TS-program = xelatex
 %!TEX encoding = UTF-8 Unicode
 
-\documentclass[$fontsize$, a4paper]{article}
+\documentclass[$fontsize$, letterpaper,USenglish]{article}
 
 % LAYOUT
 %--------------------------------
-\usepackage{geometry} 
+\usepackage{geometry}
 \geometry{$geometry$}
 
 % No page numbers
@@ -15,16 +15,17 @@
 \usepackage[document]{ragged2e}
 
 $if(letterhead)$
-  % To include the letterhead
-  \usepackage{wallpaper}
-  \ULCornerWallPaper{1}{letterhead.pdf}
+	% To include the letterhead
+	\usepackage{wallpaper}
+	\ULCornerWallPaper{1}{letterhead.pdf}
 $endif$
 
 % TYPOGRAPHY
 %--------------------------------
-\usepackage{fontspec} 
+\usepackage{fontspec}
 \usepackage{xunicode}
 \usepackage{xltxtra}
+\usepackage{moresize}
 
 % converts LaTeX specials (quotes, dashes etc.) to Unicode
 \defaultfontfeatures{Mapping=tex-text}
@@ -41,15 +42,16 @@ $if(seriffont)$
 \setmainfont[SmallCapsFeatures={LetterSpace=5,Letters=SmallCaps}]{$seriffont$}
 $endif$
 $if(sansfont)$
-    \setsansfont{$sansfont$}
+	\setsansfont{$sansfont$}
 $endif$
 
 % Command required by how Pandoc handles the list conversion
 \providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+	\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 % TABLE CUSTOMIZATION
 %--------------------------------
+\usepackage[autolanguage]{numprint}
 \usepackage{spreadtab}
 \usepackage[compact]{titlesec} % For customizing title sections
 \titlespacing*{\section}{0pt}{3pt}{-7pt} % Remove margin bottom from the title
@@ -64,38 +66,40 @@ $endif$
 
 % LANGUAGE
 %--------------------------------
-$if(lang)$
-\usepackage{polyglossia}
-\setmainlanguage{$lang$}
-$endif$
+%$if(lang)$
+%\usepackage{polyglossia}
+%\setmainlanguage{$lang$}
+%$endif$
+%\usepackage[T1]{fontenc}
+\usepackage{babel}
+
+
 
 % PDF SETUP
 %--------------------------------
 \usepackage[xetex, bookmarks, colorlinks, breaklinks]{hyperref}
 \hypersetup
 {
-  pdfauthor={$author$},
-  pdfsubject=Invoice Nr. $invoice-nr$,
-  pdftitle=Invoice Nr. $invoice-nr$,
-  linkcolor=blue,
-  citecolor=blue,
-  filecolor=black,
-  urlcolor=blue
+	pdfauthor={$company$},
+	pdfsubject=Invoice Nr. $invoice-nr$,
+	pdftitle=Invoice Nr. $invoice-nr$,
+	linkcolor=blue,
+	citecolor=blue,
+	filecolor=black,
+	urlcolor=blue
 }
 
 % To display custom date
-% \usepackage[nodayofweek]{datetime}
-% \newdate{date}{01}{12}{1867}
-% \date{\displaydate{date}}
-% Use this instead of \today: % \displaydate{date}
+\usepackage{isodate}
 
 % DOCUMENT
 %--------------------------------
 \begin{document}
+\selectlanguage{USenglish}
 \small
-\textsc{\textbf{$author$}}
-$for(from)$
-\textbullet{} \textsc{$from$}
+\textsc{\textbf{$company$}}
+$for(address)$
+\textbullet{} \textsc{$address$}
 $endfor$
 
 \vspace{1em}
@@ -108,8 +112,8 @@ $endfor$
 \vspace{6em}
 
 \begin{flushright}
-  \small
-  $city$, \today
+	\small
+	\printdate{$date$}
 \end{flushright}
 
 \vspace{1em}
@@ -119,23 +123,27 @@ $endfor$
 \footnotesize
 \newcounter{pos}
 \setcounter{pos}{0}
-\STautoround*{2} % Get spreadtab to always display the decimal part
+%\STautoround*{2} % Get spreadtab to always display the decimal part
+\nprounddigits2
+\renewcommand\STprintnum[1]{\numprint{#1}}
 $if(commasep)$\STsetdecimalsep{,}$endif$ % Use comma as decimal separator
 
-\begin{spreadtab}{{tabular}[t t t]{lp{8.2cm}r}}
-  \hdashline[1pt/1pt]
-  @ \noalign{\vskip 2mm} \textbf{Pos.} & @ \textbf{Description} & @ \textbf{Prices in $currency$} \\ \hline
-      $for(service)$ @ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos 
-        & @ $service.description$ 
-        $if(service.details)$\newline \begin{itemize} 
-          $for(service.details)$\scriptsize \item $service.details$ 
-          $endfor$ \end{itemize}
-          $endif$ & $service.price$\\$endfor$ \noalign{\vskip 2mm} \hline
-  $if(VAT)$
-    @ & @ \multicolumn{1}{r}{Subtotal:}                & :={sum(c1:[0,-1])} \\ \hhline{~~-}
-    @ & @ \multicolumn{1}{r}{VAT $VAT$\%:}               & $VAT$/100*[0,-1] \\ \hhline{~~-}
-  $endif$
-  @ & @ \multicolumn{1}{r}{\textbf{Total:}}   & \textbf{:={$if(VAT)$[0,-1]+[0,-2]$else$sum(c1:[0,-1])$endif$}} \\ \hhline{~~-}
+\begin{spreadtab}{{tabular}[t t t t t t]{lp{8.2cm}lrrr}}
+	\hdashline[1pt/1pt]
+	@ \noalign{\vskip 2mm} \textbf{Pos.} & @ \textbf{Description} & @ \textbf{Qty.} & @ \textbf{Unit} & @ \textbf{Price} & @ \textbf{Total in $currency$} \\ \hline
+	$for(service)$
+		@ \noalign{\vskip 2mm} \refstepcounter{pos} \thepos
+		& @ $service.description$
+		$if(service.details)$\newline \begin{itemize}
+			$for(service.details)$\ssmall \item $service.details$
+			$endfor$ \end{itemize}
+		$endif$ &
+		$service.quantity$ &
+		@ $service.units$ &
+		$service.price$ &
+		[-3,0]*[-1,0]\\
+	$endfor$ \noalign{\vskip 2mm} \hline
+	@ & @ & @ & @ & @ \multicolumn{1}{r}{\textbf{Total Due:}} & \textbf{:={sum(f1:[0,-1])}} \\ \hhline{~~~~~-}
 \end{spreadtab}
 
 
@@ -146,7 +154,5 @@ $if(commasep)$\STsetdecimalsep{,}$endif$ % Use comma as decimal separator
 $closingnote$
 
 \medskip
-
-$author$
 
 \end{document}

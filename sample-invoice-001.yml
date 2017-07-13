@@ -1,0 +1,41 @@
+---
+invoice-nr: 001
+date: 2017-07-24
+company: October Swimmer LLC
+city: Portland
+address:
+- 2229 NW Mill Pond Road
+- Portland, OR 97229
+- +1.424.229.1295
+to:
+- Acme Inc.
+- 1234 Main Street
+- Suite 1000
+- Any Town, USA
+service:
+- description: Consulting — July 9–15
+  price: 250.00
+  quantity: 39.22
+  units: hours
+  details:
+    - <https://example.com/>
+- description: Consulting — July 16–22
+  price: 250.00
+  quantity: 40.16
+  units: hours
+  details:
+    - <https:/example.com/>
+closingnote: |
+  Purchase Order 2017-0000001  
+# Invoice settings
+currency: USD
+# commasep: true
+lang: english
+
+# Typography and layout
+seriffont: Linux Libertine O
+sansfont: Noto Sans
+fontsize: 10pt
+geometry: letterpaper, left=23mm, right=23mm, top=51mm, bottom=17mm
+# letterhead: true # To include personalized letterheads
+---

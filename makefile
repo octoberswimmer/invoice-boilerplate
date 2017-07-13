@@ -1,10 +1,11 @@
 TEX = pandoc
-src = template.tex details.yml
 FLAGS = --latex-engine=xelatex
 
-output.pdf : $(src)
+%.pdf: template.tex %.yml
 	$(TEX) $(filter-out $<,$^ ) -o $@ --template=$< $(FLAGS)
+
+all: $(addsuffix .pdf, $(basename $(wildcard *.yml)))
 
 .PHONY: clean
 clean :
-	rm output.pdf
+	rm *.pdf
